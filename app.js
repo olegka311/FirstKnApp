@@ -1,5 +1,5 @@
 /**
- * Copyright 2015 IBM Corp. All Rights Reserved.
+ * Copyright 2014, 2015 IBM Corp. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,50 +16,47 @@
 
 'use strict';
 
-var express = require('express'),
-  app = express(),
-  vcapServices = require('vcap_services'),
-  extend = require('util')._extend,
-  watson = require('watson-developer-cloud');
-var expressBrowserify = require('express-browserify');
+var express    = require('express'),
+  app          = express(),
+  watson       = require('watson-developer-cloud');
 
-// load environment properties from a .env file for local development
-require('dotenv').load({silent: true});
 
 // Bootstrap application settings
 require('./config/express')(app);
 
-// automatically compile and serve the front-end js
-app.get('/js/index.js', expressBrowserify('src/index.js', {
-  watch: process.env.NODE_ENV !== 'production'
-}));
-var config = {
+// For local development, replace username and password
+var textToSpeech = watson.text_to_speech({
   version: 'v1',
-  url: 'https://stream.watsonplatform.net/speech-to-text/api',
-  username: '<fa58040f-fa28-4795-8a81-a301370185f5>',
-  password: '<BO0h8gavTd6I>'  
-};
-
-var authService = watson.authorization(config);
-
-app.get('/', function(req, res) {
-  res.render('index', {
-    ct: req._csrfToken,
-    GOOGLE_ANALYTICS_ID: process.env.GOOGLE_ANALYTICS_ID
-  });
+  username: 'fa58040f-fa28-4795-8a81-a301370185f5',
+  password: 'BO0h8gavTd6I'
 });
 
-// Get token using your credentials
-app.post('/api/token', function(req, res, next) {
-  authService.getToken({url: config.url}, function(err, token) {
-    if (err)
-      next(err);
-    else
-      res.send(token);
+app.get('/api/synthesize', function(req, res, next) {
+  var transcript = textToSpeech.synthesize(req.query);
+  transcript.on('response', function(response) {
+    if (req.query.download) {
+      response.headers['content-disposition'] = 'attachment; filename=transcript.ogg';
+    }
   });
+  transcript.on('error', function(error) {
+    next(error);
+  });
+  transcript.pipe(res);
 });
+
+// Return the list of voices
+// app.get('/api/voices', function(req, res, next) {
+//   textToSpeech.voices(function (error, voices) {
+//     if (error)
+//       next(error);
+//     else
+//       res.json(voices);
+//   });
+// });
 
 // error-handler settings
 require('./config/error-handler')(app);
 
-module.exports = app;
+var port = process.env.VCAP_APP_PORT || 3000;
+app.listen(port);
+console.log('listening at:', port);
