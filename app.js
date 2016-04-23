@@ -33,13 +33,18 @@ require('./config/express')(app);
 app.get('/js/index.js', expressBrowserify('src/index.js', {
   watch: process.env.NODE_ENV !== 'production'
 }));
-
+var config = {
+  version: 'v1',
+  url: 'https://stream.watsonplatform.net/speech-to-text/api',
+  username: '<fa58040f-fa28-4795-8a81-a301370185f5>',
+  password: '<BO0h8gavTd6I>'  
+};
 // For local development, replace username and password
 var config = extend({
   version: 'v1',
   url: 'https://stream.watsonplatform.net/speech-to-text/api',
-  username: process.env.STT_USERNAME || '<fa58040f-fa28-4795-8a81-a301370185f5>',
-  password: process.env.STT_PASSWORD || '<BO0h8gavTd6I>'
+  username: process.env.STT_USERNAME || '<username>',
+  password: process.env.STT_PASSWORD || '<password>'
 }, vcapServices.getCredentials('speech_to_text'));
 
 var authService = watson.authorization(config);
