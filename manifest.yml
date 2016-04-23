@@ -1,6 +1,6 @@
 ---
 declared-services:
-  speech-to-text-service-standard:
+  Text to Speech-5s:
     label: speech_to_text
     plan: standard
 applications:
