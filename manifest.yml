@@ -7,7 +7,7 @@ applications:
 - name: speech-to-text-demo
   path: .
   command: npm start
-  memory: 256M
+  memory: 126M
   services:
   - speech-to-text-service-standard
   env:
