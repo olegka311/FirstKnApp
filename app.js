@@ -39,13 +39,6 @@ var config = {
   username: '<fa58040f-fa28-4795-8a81-a301370185f5>',
   password: '<BO0h8gavTd6I>'  
 };
-// For local development, replace username and password
-var config = extend({
-  version: 'v1',
-  url: 'https://stream.watsonplatform.net/text-to-speech/api',
-  username: process.env.STT_USERNAME || '<fa58040f-fa28-4795-8a81-a301370185f5>',
-  password: process.env.STT_PASSWORD || '<BO0h8gavTd6I>'
-}, vcapServices.getCredentials('speech_to_text'));
 
 var authService = watson.authorization(config);
 
